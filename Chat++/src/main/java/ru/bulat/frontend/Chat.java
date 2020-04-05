@@ -1,10 +1,11 @@
 package ru.bulat.frontend;
 
 import ru.bulat.ejection.Ban;
-import ru.bulat.interfaces.StartInterface;
+import ru.bulat.interfaces.WindowListenerExit;
 import ru.bulat.musicPlayer.SwingAudioPlayer;
 import ru.bulat.network.TCPConnection;
 import ru.bulat.network.TCPConnectionListener;
+import ru.bulat.videoPlayer.VideoPlayerMain;
 
 import javax.swing.*;
 import javax.swing.text.DefaultCaret;
@@ -17,7 +18,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Chat extends JFrame implements StartInterface, ActionListener, TCPConnectionListener {
+public class Chat extends JFrame implements WindowListenerExit, ActionListener, TCPConnectionListener {
     private static final String IP_ADDRESS = "127.0.0.1";
     private static final int PORT = 8000;
     private static final String regexOfMats = "\\w{0,5}[хx]([хx\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[уy]([уy\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[ёiлeеюийя]\\w{0,7}|\\w{0,6}[пp]([пp\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[iие]([iие\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[3зс]([3зс\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[дd]\\w{0,10}|[сcs][уy]([уy\\!@#\\$%\\^&*+-\\|\\/]{0,6})[4чkк]\\w{1,3}|\\w{0,4}[bб]([bб\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[lл]([lл\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[yя]\\w{0,10}|\\w{0,8}[её][bб][лске@eыиаa][наи@йвл]\\w{0,8}|\\w{0,4}[еe]([еe\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[бb]([бb\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[uу]([uу\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[н4ч]\\w{0,4}|\\w{0,4}[еeё]([еeё\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[бb]([бb\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[нn]([нn\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[уy]\\w{0,4}|\\w{0,4}[еe]([еe\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[бb]([бb\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[оoаa@]([оoаa@\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[тnнt]\\w{0,4}|\\w{0,10}[ё]([ё\\!@#\\$%\\^&*+-\\|\\/]{0,6})[б]\\w{0,6}|\\w{0,4}[pп]([pп\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[иeеi]([иeеi\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[дd]([дd\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[oоаa@еeиi]([oоаa@еeиi\\s\\!@#\\$%\\^&*+-\\|\\/]{0,6})[рr]\\w{0,12}|\\w{0,6}[cсs][уu][kк][aа]";
@@ -127,11 +128,6 @@ public class Chat extends JFrame implements StartInterface, ActionListener, TCPC
         printMessage("Database exception: " + ex);
     }
 
-    public static void main(String[] args) {
-        CustomizeItemsJavaFX.start(Chat.class);
-        EventQueue.invokeLater(() -> new Chat().setVisible(true));
-    }
-
     @Override
     public void actionPerformed(ActionEvent evt) {
 
@@ -146,9 +142,17 @@ public class Chat extends JFrame implements StartInterface, ActionListener, TCPC
         JMenuItem settings = new JMenuItem("Settings");
         settings.addActionListener(e -> Settings.goToSettings());
         exit.setIcon(new ImageIcon("src\\main\\resources\\img\\menu\\exit.png"));
+        JMenuItem changePassword = new JMenuItem("ChangePassword");
+        changePassword.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ChangePassword.goToChangePassword(nickname);
+            }
+        });
         file.add(open);
         file.add(settings);
         file.addSeparator();
+        file.add(changePassword);
         file.add(exit);
         open.addActionListener(arg0 -> JOptionPane.showMessageDialog(Chat.this,
                 "(Something about my application)"));
@@ -166,12 +170,7 @@ public class Chat extends JFrame implements StartInterface, ActionListener, TCPC
     private JMenu createVideoMenu(){
         JMenu video = new JMenu("Video");
         JMenuItem on = new JMenuItem("Turn on the video");
-        on.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
+        on.addActionListener(e -> VideoPlayerMain.goToVideoPlayer());
         video.add(on);
         return video;
     }
@@ -206,7 +205,7 @@ public class Chat extends JFrame implements StartInterface, ActionListener, TCPC
             message += "\nПользователю " + nickname + " выдано " + warning + "/3 предупреждение!";
             if (warning == 3) {
                 setVisible(false);
-                Ban.goToBan();
+                Ban.goToBan(nickname);
             }
         }
         if (message.trim().equals("")) return;

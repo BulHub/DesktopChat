@@ -1,13 +1,11 @@
 package ru.bulat.musicPlayer;
 
+import javax.sound.sampled.Clip;
+import javax.swing.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-
-import javax.sound.sampled.Clip;
-import javax.swing.JLabel;
-import javax.swing.JSlider;
 
 public class PlayingTimer extends Thread {
 	private DateFormat dateFormater = new SimpleDateFormat("HH:mm:ss");	
@@ -48,7 +46,7 @@ public class PlayingTimer extends Thread {
 					pauseTime += 100;
 				}
 			} catch (InterruptedException ex) {
-				ex.printStackTrace();
+
 				if (isReset) {
 					slider.setValue(0);
 					labelRecordTime.setText("00:00:00");

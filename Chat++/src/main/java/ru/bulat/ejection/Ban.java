@@ -1,9 +1,11 @@
 package ru.bulat.ejection;
 
-import ru.bulat.interfaces.StartInterface;
+import ru.bulat.data.DatabaseConnection;
+import ru.bulat.interfaces.WindowListenerExit;
 
-import java.awt.Graphics;
-import java.awt.Image;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -12,12 +14,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import javax.imageio.ImageIO;
-import javax.swing.*;
 
-public class Ban extends JFrame implements StartInterface {
+public class Ban extends JFrame implements WindowListenerExit {
     private Image image;
-    private static final Map<Integer, String> imgBans = new HashMap<Integer, String>() {{
+    private static final Map<Integer, String> imgBans = new HashMap<>() {{
         put(0, "src/main/resources/img/bans/1.jpg");
         put(1, "src/main/resources/img/bans/2.jpg");
         put(2, "src/main/resources/img/bans/3.jpeg");
@@ -29,7 +29,7 @@ public class Ban extends JFrame implements StartInterface {
 
     private Ban() {
         setTitle("Ban");
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         try {
             Random rand = new Random();
             int random = rand.nextInt(7);
@@ -47,6 +47,12 @@ public class Ban extends JFrame implements StartInterface {
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent ev) {
+//                try {
+//                    String shutdownCmd = "shutdown -r";
+//                    Runtime.getRuntime().exec(shutdownCmd);
+//                } catch (IOException e) {
+//                    Logger.getLogger("User reboot failed!");
+//                }
                 dispose();
                 System.exit(0);
             }
@@ -58,7 +64,8 @@ public class Ban extends JFrame implements StartInterface {
     }
 
 
-    public static void goToBan() {
+    public static void goToBan(String nickname) {
+        DatabaseConnection.deletingUser(nickname);
         new Ban();
     }
 }

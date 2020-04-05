@@ -1,8 +1,8 @@
 package ru.bulat.frontend;
 
 import ru.bulat.interfaces.PlaceholderInterface;
-import ru.bulat.interfaces.StartInterface;
-import ru.bulat.PlaceholderTextField;
+import ru.bulat.interfaces.WindowListenerExit;
+import ru.bulat.ejection.PlaceholderTextField;
 import ru.bulat.data.DatabaseConnection;
 
 import javax.imageio.ImageIO;
@@ -12,7 +12,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 
-public class Entrance extends JFrame implements ActionListener, StartInterface, PlaceholderInterface {
+public class Entrance extends JFrame implements ActionListener, WindowListenerExit, PlaceholderInterface {
     private static final String placeholderForEmail = "(Enter your email)";
     private static final String placeholderForPassword = "Password here!";
     private JPasswordField jPasswordField1;
@@ -53,12 +53,12 @@ public class Entrance extends JFrame implements ActionListener, StartInterface, 
         jPasswordField1.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                textEmailFieldFocusGained(e, jPasswordField1);
+                textPasswordFocusGained(e, jPasswordField1);
             }
 
             @Override
             public void focusLost(FocusEvent e) {
-                PlaceholderTextField.textPasswordFocusLost(e, jPasswordField1);
+                textPasswordFocusLost(e, jPasswordField1);
             }
         });
         addWindowListener(this);

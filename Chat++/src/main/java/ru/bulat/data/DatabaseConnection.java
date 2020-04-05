@@ -35,16 +35,18 @@ public class DatabaseConnection {
         return instance;
     }
 
-    public static void writeToDatabaseNewUser(String email, String password) {
-        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("INSERT INTO clients(email, password, position) VALUES (? , ?, ?)")) {
+    public static void writeToDatabaseNewUser(String email, String password, String nickname) {
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hash = encoder.encode(password);
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("INSERT INTO clients(email, password, position, nickname) VALUES (? , ?, ?, ?)")) {
             preparedStatement.setString(1, email);
-            preparedStatement.setString(2, password);
+            preparedStatement.setString(2, hash);
             preparedStatement.setString(3, "Client");
+            preparedStatement.setString(4, nickname);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         }
-
     }
 
     public static String userVerification(String email, String password) {
@@ -64,5 +66,61 @@ public class DatabaseConnection {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         }
         return null;
+    }
+
+    public static void deletingUser(String nickname){
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("DELETE from clients where nickname = ?")) {
+            preparedStatement.setString(1, nickname);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        }
+    }
+
+    public static int nickIsMatchCheck(String nickname){
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("SELECT id FROM nicknames where nickname = ?")) {
+            preparedStatement.setString(1, nickname);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                return Integer.parseInt(resultSet.getString("id"));
+            }
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        }
+        return -1;
+    }
+
+    public static void writeNewNickname(String nickname){
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("INSERT INTO nicknames(nickname) values(?)")) {
+            preparedStatement.setString(1, nickname);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        }
+    }
+
+    public static String gettingEmailByNickname(String nickname){
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("SELECT email FROM clients where nickname = ?")) {
+            preparedStatement.setString(1, nickname);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                return resultSet.getString("email");
+            }
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        }
+        return null;
+    }
+
+    public static void changePassword(String password, String nickname){
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hash = encoder.encode(password);
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("UPDATE clients set password = ? where nickname = ?")) {
+            preparedStatement.setString(1, hash);
+            preparedStatement.setString(2, nickname);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        }
     }
 }

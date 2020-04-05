@@ -1,15 +1,15 @@
 package ru.bulat.frontend;
 
-import ru.bulat.interfaces.StartInterface;
+import ru.bulat.interfaces.WindowListenerNotExit;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 
-public class Settings extends JFrame implements StartInterface {
+class Settings extends JFrame implements WindowListenerNotExit {
     private static JComboBox<String> jFont;
     private static JComboBox<String> jStyle;
     private static JComboBox<String> jColor;
@@ -63,8 +63,8 @@ public class Settings extends JFrame implements StartInterface {
                     assert color != null;
                     Chat.createNewFont(font, style, size, color);
                 }
-            }catch (NullPointerException | NumberFormatException ignored){
-
+            }catch (NullPointerException | NumberFormatException ex){
+                JOptionPane.showMessageDialog(Settings.this, "The font size can be from 1 to 30.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -137,29 +137,14 @@ public class Settings extends JFrame implements StartInterface {
         EventQueue.invokeLater(() -> new Settings().setVisible(true));
     }
 
-    @Override
-    public void windowClosing(WindowEvent e) {
-        Object[] options = { "Yes", "No!" };
-        int n = JOptionPane
-                .showOptionDialog(e.getWindow(), "Close a window?",
-                        "Confirmation", JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE, null, options,
-                        options[0]);
-        if (n == 0) {
-            e.getWindow().setVisible(false);
-        }else{
-            e.getWindow().setVisible(true);
-        }
-    }
-
     class BgPanel2 extends JPanel {
         public void paintComponent(Graphics g) {
             Image im = null;
             try {
                 im = ImageIO.read(new File("src/main/resources/img/background/" +
-                        "The-best-top-desktop-yellow-wallpapers-yellow-wallpaper-yellow-background-hd-8.jpg"));
+                        "yellow.jpg"));
             } catch (IOException e) {
-                e.printStackTrace();
+                Logger.getLogger("Pictures not found!");
             }
             g.drawImage(im, 0, 0, null);
         }

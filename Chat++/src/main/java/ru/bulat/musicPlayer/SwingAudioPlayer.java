@@ -1,6 +1,7 @@
 package ru.bulat.musicPlayer;
 
-import ru.bulat.interfaces.StartInterface;
+import ru.bulat.frontend.CustomizeItemsJavaFX;
+import ru.bulat.interfaces.WindowListenerNotExit;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -9,11 +10,10 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 
-public class SwingAudioPlayer extends JFrame implements ActionListener, StartInterface {
+public class SwingAudioPlayer extends JFrame implements ActionListener, WindowListenerNotExit {
 	private AudioPlayer player = new AudioPlayer();
 	private Thread playbackThread;
 	private PlayingTimer timer;
@@ -258,16 +258,7 @@ public class SwingAudioPlayer extends JFrame implements ActionListener, StartInt
 	}
 
 	public static void goToAudioPlayer(){
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		SwingUtilities.invokeLater(() -> new SwingAudioPlayer().setVisible(true));
-	}
-
-	@Override
-	public void windowClosing(WindowEvent e) {
-		setVisible(false);
+		CustomizeItemsJavaFX.start(SwingAudioPlayer.class);
+		EventQueue.invokeLater(() -> new SwingAudioPlayer().setVisible(true));
 	}
 }

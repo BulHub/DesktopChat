@@ -1,8 +1,8 @@
 package ru.bulat.frontend;
 
-import ru.bulat.PlaceholderTextField;
+import ru.bulat.ejection.PlaceholderTextField;
 import ru.bulat.interfaces.PlaceholderInterface;
-import ru.bulat.interfaces.StartInterface;
+import ru.bulat.interfaces.WindowListenerExit;
 import ru.bulat.data.DatabaseConnection;
 
 import javax.imageio.ImageIO;
@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Registration extends JFrame implements ActionListener, StartInterface, PlaceholderInterface {
+public class Registration extends JFrame implements ActionListener, WindowListenerExit, PlaceholderInterface {
     private static final String placeholderForEmail = "(Enter your email)";
     private static final String placeholderForNickname = "(Enter a nickname)";
     private static final String placeholderForPassword = "Password here!";
@@ -35,7 +35,6 @@ public class Registration extends JFrame implements ActionListener, StartInterfa
 
 
     private void initComponents() {
-
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         fillingInAllErrors();
 
@@ -168,6 +167,11 @@ public class Registration extends JFrame implements ActionListener, StartInterfa
             error.append(descriptionOfAllErrors.get("Invalid nickname"));
             check = false;
         }
+        int x = DatabaseConnection.nickIsMatchCheck(nickname);
+        if (x != -1){
+            error.append(descriptionOfAllErrors.get("Matching nicknames"));
+            check = false;
+        }
     }
 
     private static void emailChecking(String email) {
@@ -197,6 +201,7 @@ public class Registration extends JFrame implements ActionListener, StartInterfa
         descriptionOfAllErrors.put("Mismatched passwords", "Passwords do not match \n");
         descriptionOfAllErrors.put("Invalid password", "Password must be between 6 and 20 characters \n");
         descriptionOfAllErrors.put("Invalid nickname", "Nickname must be between 4 and 20 characters \n");
+        descriptionOfAllErrors.put("Matching nicknames", "This nick is already busy \n");
     }
 
     static void goToRegistration() {
@@ -214,7 +219,8 @@ public class Registration extends JFrame implements ActionListener, StartInterfa
             emailChecking(fieldEmail.getText().trim());
             passwordChecking(fieldPassword.getText(), fieldRePassword.getText());
             if (check) {
-                DatabaseConnection.writeToDatabaseNewUser(fieldEmail.getText().trim(), fieldPassword.getText());
+                DatabaseConnection.writeToDatabaseNewUser(fieldEmail.getText().trim(), fieldPassword.getText(), fieldNickname.getText().trim());
+                DatabaseConnection.writeNewNickname(fieldNickname.getText().trim());
                 JOptionPane.showMessageDialog(Registration.this, "Congratulations you are registered in the chat!");
                 setVisible(false);
                 Chat.goToChat(fieldNickname.getText().trim());
