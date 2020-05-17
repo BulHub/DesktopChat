@@ -2,6 +2,7 @@ package ru.bulat.data;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.sql.*;
 
 public class DatabaseConnection {
@@ -12,7 +13,7 @@ public class DatabaseConnection {
     private DatabaseConnection() throws SQLException {
         try {
             Class.forName("org.postgresql.Driver");
-            String url = "jdbc:postgresql://localhost:5433/postgres";
+            String url = "jdbc:postgresql://localhost:5433/chat";
             String password = "543216789";
             String username = "postgres";
             this.connection = DriverManager.getConnection(url, username, password);
@@ -35,14 +36,14 @@ public class DatabaseConnection {
         return instance;
     }
 
-    public static void writeToDatabaseNewUser(String email, String password, String nickname) {
+    public static void writeToDatabaseNewUser(String email, String password, String nickname, int id) {
         PasswordEncoder encoder = new BCryptPasswordEncoder();
         String hash = encoder.encode(password);
-        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("INSERT INTO clients(email, password, position, nickname) VALUES (? , ?, ?, ?)")) {
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("INSERT INTO client(email, password, position, nickname_id) VALUES (? , ?, ?, ?)")) {
             preparedStatement.setString(1, email);
             preparedStatement.setString(2, hash);
             preparedStatement.setString(3, "Client");
-            preparedStatement.setString(4, nickname);
+            preparedStatement.setInt(4, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
@@ -50,16 +51,15 @@ public class DatabaseConnection {
     }
 
     public static String userVerification(String email, String password) {
-        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("SELECT password, id, nickname FROM clients where email = ?")) {
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("SELECT password, nickname_id FROM client where email = ?")) {
             preparedStatement.setString(1, email.trim().toLowerCase());
             PasswordEncoder encoder = new BCryptPasswordEncoder();
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 String normalPassword = resultSet.getString("password");
-                String id = resultSet.getString("id");
-                String nickname = resultSet.getString("nickname");
+                int id = resultSet.getInt("nickname_id");
                 if ((encoder.matches(password, normalPassword))) {
-                    return nickname;
+                    return findNicknameById(id);
                 }
             }
         } catch (SQLException e) {
@@ -68,16 +68,33 @@ public class DatabaseConnection {
         return null;
     }
 
-    public static void deletingUser(String nickname){
-        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("DELETE from clients where nickname = ?")) {
-            preparedStatement.setString(1, nickname);
-            preparedStatement.executeUpdate();
+    public static int emailVerification(String email) {
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("SELECT id FROM client where email = ?")) {
+            preparedStatement.setString(1, email);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                return Integer.parseInt(resultSet.getString("id"));
+            }
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         }
+        return -1;
     }
 
-    public static int nickIsMatchCheck(String nickname){
+    public static String findNicknameById(int id) {
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("SELECT nickname FROM nicknames where id = ?")) {
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                return resultSet.getString("nickname");
+            }
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        }
+        return null;
+    }
+
+    public static int nickIsMatchCheck(String nickname) {
         try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("SELECT id FROM nicknames where nickname = ?")) {
             preparedStatement.setString(1, nickname);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -90,34 +107,45 @@ public class DatabaseConnection {
         return -1;
     }
 
-    public static void writeNewNickname(String nickname){
-        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("INSERT INTO nicknames(nickname) values(?)")) {
+    public static int writeNewNickname(String nickname) {
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("INSERT INTO nicknames(nickname) values(?) returning id")) {
             preparedStatement.setString(1, nickname);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                return Integer.parseInt(resultSet.getString("id"));
+            }
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        }
+        return -1;
+    }
+
+    public static int insertMessage(String message) {
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("SELECT id FROM messages where message = ?")) {
+            preparedStatement.setString(1, message);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                return resultSet.getInt("id");
+            }
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        }
+        return -1;
+    }
+
+    public static void updateCount(String message) {
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("UPDATE messages set count = count+1 where message = ?")) {
+            preparedStatement.setString(1, message);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         }
     }
 
-    public static String gettingEmailByNickname(String nickname){
-        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("SELECT email FROM clients where nickname = ?")) {
-            preparedStatement.setString(1, nickname);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                return resultSet.getString("email");
-            }
-        } catch (SQLException e) {
-            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-        }
-        return null;
-    }
-
-    public static void changePassword(String password, String nickname){
-        PasswordEncoder encoder = new BCryptPasswordEncoder();
-        String hash = encoder.encode(password);
-        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("UPDATE clients set password = ? where nickname = ?")) {
-            preparedStatement.setString(1, hash);
-            preparedStatement.setString(2, nickname);
+    public static void insertNewMessage(String message) {
+        try (PreparedStatement preparedStatement = getInstance().getConnection().prepareStatement("INSERT INTO messages(message, count) values(?, ?)")) {
+            preparedStatement.setString(1, message);
+            preparedStatement.setInt(2, 1);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());

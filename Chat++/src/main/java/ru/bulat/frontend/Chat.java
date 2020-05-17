@@ -1,5 +1,6 @@
 package ru.bulat.frontend;
 
+import ru.bulat.data.DatabaseConnection;
 import ru.bulat.ejection.Ban;
 import ru.bulat.interfaces.WindowListenerExit;
 import ru.bulat.musicPlayer.SwingAudioPlayer;
@@ -142,17 +143,9 @@ public class Chat extends JFrame implements WindowListenerExit, ActionListener, 
         JMenuItem settings = new JMenuItem("Settings");
         settings.addActionListener(e -> Settings.goToSettings());
         exit.setIcon(new ImageIcon("src\\main\\resources\\img\\menu\\exit.png"));
-        JMenuItem changePassword = new JMenuItem("ChangePassword");
-        changePassword.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ChangePassword.goToChangePassword(nickname);
-            }
-        });
         file.add(open);
         file.add(settings);
         file.addSeparator();
-        file.add(changePassword);
         file.add(exit);
         open.addActionListener(arg0 -> JOptionPane.showMessageDialog(Chat.this,
                 "(Something about my application)"));
@@ -167,7 +160,7 @@ public class Chat extends JFrame implements WindowListenerExit, ActionListener, 
         return music;
     }
 
-    private JMenu createVideoMenu(){
+    private JMenu createVideoMenu() {
         JMenu video = new JMenu("Video");
         JMenuItem on = new JMenuItem("Turn on the video");
         on.addActionListener(e -> VideoPlayerMain.goToVideoPlayer());
@@ -211,6 +204,12 @@ public class Chat extends JFrame implements WindowListenerExit, ActionListener, 
         if (message.trim().equals("")) return;
         fieldInput.setText(null);
         connection.sendString("(" + formatForDateNow.format(dateNow) + ")" + " " + nickname + ": " + message);
+        int id = DatabaseConnection.insertMessage(message);
+        if (id != -1) {
+            DatabaseConnection.updateCount(message);
+        } else {
+            DatabaseConnection.insertNewMessage(message);
+        }
     }
 
     private synchronized void printMessage(final String message) {

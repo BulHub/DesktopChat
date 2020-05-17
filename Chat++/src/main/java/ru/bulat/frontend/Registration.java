@@ -182,6 +182,11 @@ public class Registration extends JFrame implements ActionListener, WindowListen
             error.append(descriptionOfAllErrors.get("Incorrectly email"));
             check = false;
         }
+        int id = DatabaseConnection.emailVerification(email);
+        if (id != -1){
+            error.append(descriptionOfAllErrors.get("Invalid email"));
+            check = false;
+        }
     }
 
     private static void passwordChecking(String password, String rePassword) {
@@ -202,6 +207,7 @@ public class Registration extends JFrame implements ActionListener, WindowListen
         descriptionOfAllErrors.put("Invalid password", "Password must be between 6 and 20 characters \n");
         descriptionOfAllErrors.put("Invalid nickname", "Nickname must be between 4 and 20 characters \n");
         descriptionOfAllErrors.put("Matching nicknames", "This nick is already busy \n");
+        descriptionOfAllErrors.put("Invalid email", "This email is already busy \n");
     }
 
     static void goToRegistration() {
@@ -219,8 +225,8 @@ public class Registration extends JFrame implements ActionListener, WindowListen
             emailChecking(fieldEmail.getText().trim());
             passwordChecking(fieldPassword.getText(), fieldRePassword.getText());
             if (check) {
-                DatabaseConnection.writeToDatabaseNewUser(fieldEmail.getText().trim(), fieldPassword.getText(), fieldNickname.getText().trim());
-                DatabaseConnection.writeNewNickname(fieldNickname.getText().trim());
+                int id = DatabaseConnection.writeNewNickname(fieldNickname.getText().trim());
+                DatabaseConnection.writeToDatabaseNewUser(fieldEmail.getText().trim(), fieldPassword.getText(), fieldNickname.getText().trim(), id);
                 JOptionPane.showMessageDialog(Registration.this, "Congratulations you are registered in the chat!");
                 setVisible(false);
                 Chat.goToChat(fieldNickname.getText().trim());

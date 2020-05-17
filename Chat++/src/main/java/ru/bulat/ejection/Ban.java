@@ -1,6 +1,5 @@
 package ru.bulat.ejection;
 
-import ru.bulat.data.DatabaseConnection;
 import ru.bulat.interfaces.WindowListenerExit;
 
 import javax.imageio.ImageIO;
@@ -65,7 +64,6 @@ public class Ban extends JFrame implements WindowListenerExit {
 
 
     public static void goToBan(String nickname) {
-        DatabaseConnection.deletingUser(nickname);
         new Ban();
     }
 }
