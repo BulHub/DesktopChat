@@ -1,9 +1,12 @@
 package ru.bulat.frontend;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.bulat.interfaces.PlaceholderInterface;
 import ru.bulat.interfaces.WindowListenerExit;
 import ru.bulat.ejection.PlaceholderTextField;
 import ru.bulat.data.DatabaseConnection;
+import ru.bulat.model.Client;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -11,6 +14,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 public class Entrance extends JFrame implements ActionListener, WindowListenerExit, PlaceholderInterface {
     private static final String placeholderForEmail = "(Enter your email)";
@@ -116,11 +120,16 @@ public class Entrance extends JFrame implements ActionListener, WindowListenerEx
     @Override
     public void actionPerformed(ActionEvent evt) {
         if (evt.getActionCommand().equals("Enter")) {
-            String nickname = DatabaseConnection.userVerification(jTextField2.getText().trim(), jPasswordField1.getText().trim());
-            if (nickname != null){
-                JOptionPane.showMessageDialog(Entrance.this, "Congratulations you are in the chat!");
-                setVisible(false);
-                Chat.goToChat(nickname);
+            Optional<Client> client = DatabaseConnection.findByEmail(jTextField2.getText().trim());
+            PasswordEncoder encoder = new BCryptPasswordEncoder();
+            if (client.isPresent()){
+                if (encoder.matches(jPasswordField1.getText().trim(), client.get().getPassword())){
+                    JOptionPane.showMessageDialog(Entrance.this, "Congratulations you are in the chat!");
+                    setVisible(false);
+                    Chat.goToChat((DatabaseConnection.findById(client.get().getNickname_id()).get().getNickname()));
+                }else {
+                    JOptionPane.showMessageDialog(Entrance.this, "Wrong login or password!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
             else
                 JOptionPane.showMessageDialog(Entrance.this, "Wrong login or password!", "Error", JOptionPane.ERROR_MESSAGE);

@@ -3,6 +3,7 @@ package ru.bulat.frontend;
 import ru.bulat.data.DatabaseConnection;
 import ru.bulat.ejection.Ban;
 import ru.bulat.interfaces.WindowListenerExit;
+import ru.bulat.model.Message;
 import ru.bulat.musicPlayer.SwingAudioPlayer;
 import ru.bulat.network.TCPConnection;
 import ru.bulat.network.TCPConnectionListener;
@@ -204,12 +205,9 @@ public class Chat extends JFrame implements WindowListenerExit, ActionListener, 
         if (message.trim().equals("")) return;
         fieldInput.setText(null);
         connection.sendString("(" + formatForDateNow.format(dateNow) + ")" + " " + nickname + ": " + message);
-        int id = DatabaseConnection.insertMessage(message);
-        if (id != -1) {
-            DatabaseConnection.updateCount(message);
-        } else {
-            DatabaseConnection.insertNewMessage(message);
-        }
+        DatabaseConnection.save(new Message().builder()
+                .message(message).build());
+        DatabaseConnection.updateCount(nickname);
     }
 
     private synchronized void printMessage(final String message) {

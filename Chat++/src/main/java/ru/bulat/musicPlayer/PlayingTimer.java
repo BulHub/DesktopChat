@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class PlayingTimer extends Thread {
-	private DateFormat dateFormater = new SimpleDateFormat("HH:mm:ss");	
+	private DateFormat dateFormatter = new SimpleDateFormat("HH:mm:ss");
 	private boolean isRunning = false;
 	private boolean isPause = false;
 	private boolean isReset = false;
@@ -73,7 +73,7 @@ public class PlayingTimer extends Thread {
 	private String toTimeString() {
 		long now = System.currentTimeMillis();
 		Date current = new Date(now - startTime - pauseTime);
-		dateFormater.setTimeZone(TimeZone.getTimeZone("GMT"));
-		return dateFormater.format(current);
+		dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+		return dateFormatter.format(current);
 	}
 }

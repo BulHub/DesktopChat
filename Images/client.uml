@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>a796b5af-c950-486c-b16a-409a4c18f6c2.TABLE:chat.public.client</OriginalElement>
+  <nodes>
+    <node x="0.0" y="0.0">a796b5af-c950-486c-b16a-409a4c18f6c2.TABLE:chat.public.nicknames</node>
+    <node x="5.0" y="146.0">a796b5af-c950-486c-b16a-409a4c18f6c2.TABLE:chat.public.client</node>
+    <node x="229.0" y="0.0">a796b5af-c950-486c-b16a-409a4c18f6c2.TABLE:chat.public.messages</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="a796b5af-c950-486c-b16a-409a4c18f6c2.TABLE:chat.public.client" target="a796b5af-c950-486c-b16a-409a4c18f6c2.TABLE:chat.public.nicknames">
+      <point x="0.0" y="-59.0" />
+      <point x="0.0" y="48.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="199.0" y="132.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Key columns</Category>
+    <Category>Columns</Category>
+  </Categories>
+</Diagram>
+

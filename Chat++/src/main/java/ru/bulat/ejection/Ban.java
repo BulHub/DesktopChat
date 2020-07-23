@@ -16,7 +16,7 @@ import java.util.Random;
 
 public class Ban extends JFrame implements WindowListenerExit {
     private Image image;
-    private static final Map<Integer, String> imgBans = new HashMap<>() {{
+    private static final Map<Integer, String> imgBans = new HashMap<Integer, String>() {{
         put(0, "src/main/resources/img/bans/1.jpg");
         put(1, "src/main/resources/img/bans/2.jpg");
         put(2, "src/main/resources/img/bans/3.jpeg");
@@ -46,12 +46,6 @@ public class Ban extends JFrame implements WindowListenerExit {
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent ev) {
-//                try {
-//                    String shutdownCmd = "shutdown -r";
-//                    Runtime.getRuntime().exec(shutdownCmd);
-//                } catch (IOException e) {
-//                    Logger.getLogger("User reboot failed!");
-//                }
                 dispose();
                 System.exit(0);
             }

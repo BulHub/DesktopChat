@@ -4,6 +4,8 @@ import ru.bulat.ejection.PlaceholderTextField;
 import ru.bulat.interfaces.PlaceholderInterface;
 import ru.bulat.interfaces.WindowListenerExit;
 import ru.bulat.data.DatabaseConnection;
+import ru.bulat.model.Client;
+import ru.bulat.model.Nickname;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -12,6 +14,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -167,8 +170,8 @@ public class Registration extends JFrame implements ActionListener, WindowListen
             error.append(descriptionOfAllErrors.get("Invalid nickname"));
             check = false;
         }
-        int x = DatabaseConnection.nickIsMatchCheck(nickname);
-        if (x != -1){
+        Optional<Nickname> nickname1 = DatabaseConnection.findByNickname(nickname);
+        if (nickname1.isPresent()) {
             error.append(descriptionOfAllErrors.get("Matching nicknames"));
             check = false;
         }
@@ -182,8 +185,8 @@ public class Registration extends JFrame implements ActionListener, WindowListen
             error.append(descriptionOfAllErrors.get("Incorrectly email"));
             check = false;
         }
-        int id = DatabaseConnection.emailVerification(email);
-        if (id != -1){
+        Optional<Client> client = DatabaseConnection.findByEmail(email);
+        if (client.isPresent()) {
             error.append(descriptionOfAllErrors.get("Invalid email"));
             check = false;
         }
@@ -225,8 +228,14 @@ public class Registration extends JFrame implements ActionListener, WindowListen
             emailChecking(fieldEmail.getText().trim());
             passwordChecking(fieldPassword.getText(), fieldRePassword.getText());
             if (check) {
-                int id = DatabaseConnection.writeNewNickname(fieldNickname.getText().trim());
-                DatabaseConnection.writeToDatabaseNewUser(fieldEmail.getText().trim(), fieldPassword.getText(), fieldNickname.getText().trim(), id);
+                Nickname nickname = DatabaseConnection.save(new Nickname().builder()
+                        .nickname(fieldNickname.getText().trim())
+                        .build());
+                DatabaseConnection.save(new Client().builder()
+                        .email(fieldEmail.getText().trim())
+                        .password(fieldPassword.getText())
+                        .nickname_id(nickname.getId())
+                        .build());
                 JOptionPane.showMessageDialog(Registration.this, "Congratulations you are registered in the chat!");
                 setVisible(false);
                 Chat.goToChat(fieldNickname.getText().trim());
