@@ -1,32 +1,9 @@
-## Чат, написанный на языке программирования Java с применением:
+## Repository Directories Guide:
 
-+ JDBC (англ. Java DataBase Connectivity - соединение с базами данных на Java) - платформенно независимый промышленный стандарт взаимодействия Java-приложений с различными СУБД.
+**Chat++/**** : *РЎode*
 
-+ Swing - это библиотека, которая содержит необходимый набор компонентов для создания графического интерфейса пользователя. С помощью Swing можно написать десктопное приложение на Java.
+**Images/**** : *Application work images*
 
-+ PostgreSQL — свободная объектно-реляционная система управления базами данных (СУБД).
+**Description (English version).pptx and Description (Russian version).pptx** : *Full description of the project (I advise you to read)*
 
-+ Apache Maven — фреймворк для автоматизации сборки проектов на основе описания их структуры в файлах на языке POM (англ. Project Object Model), являющемся подмножеством XML.
-
-## Основные окна:
-
-### Вход:
-![Альтернативный текст](Images/Entrance.PNG)
-
-### Регистрация:
-![Альтернативный текст](Images/Registration.PNG)
-
-### Чат:
-![Альтернативный текст](Images/Chat.PNG)
-
-### Настройки:
-![Альтернативный текст](Images/Settings.PNG)
-
-### Аудиоплеер:
-![Альтернативный текст](Images/AudioPlayer.PNG)
-
-### Выбор песни:
-![Альтернативный текст](Images/Choose%20music.PNG)
-
-### Просмотр видео:
-![Альтернативный текст](Images/Video.PNG)
+**HELP_EN.md and HELP_RU.md** : *Application installation and launch guide*
